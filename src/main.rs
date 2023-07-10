@@ -14,7 +14,7 @@ const DRAGON_SIZE: Vec3 = Vec3::new(1.0, 1.0, 1.0);
 
 const TERRAIN_SIZE: Vec3 = Vec3::new(1.0, 1.0, 1.0);
 
-const BOUNDRY_SCALE: Vec3 = Vec3::new(1.0,1.0,1.0);
+const BOUNDRY_SCALE: Vec3 = Vec3::new(1.0, 1.0, 1.0);
 
 const BOUNDRY_DISTANCE: f32 = 200.;
 
@@ -29,7 +29,7 @@ const SPRITE_DIMENSION: f32 = 64.0;
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 enum RunState {
     Running,
-    ResetTerrain
+    ResetTerrain,
 }
 
 #[derive(Resource)]
@@ -85,42 +85,43 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         commands
             .spawn(SpriteBundle {
                 texture: asset_server.load("terrain.png"),
-                transform: Transform::from_xyz(400. + (300. * i as f32), 10. * rng.gen_range(-10.0..10.0), 0.)
-                    .with_scale(TERRAIN_SIZE),
+                transform: Transform::from_xyz(
+                    400. + (300. * i as f32),
+                    10. * rng.gen_range(-10.0..10.0),
+                    0.,
+                )
+                .with_scale(TERRAIN_SIZE),
                 ..Default::default()
             })
             .insert(Terrain)
             .insert(Collider);
     }
 
-
-    for i in 1..BOUNDY_SEGMENTS {    
+    for i in 1..BOUNDY_SEGMENTS {
         // Roof
         commands
-        .spawn(SpriteBundle {
-            texture: asset_server.load("terrain.png"),
-            transform: Transform::from_xyz(-450.0 + (64.0 * i as f32), BOUNDRY_DISTANCE, 0.)
-                .with_scale(BOUNDRY_SCALE),
-            ..Default::default()
-        })
-        .insert(Terrain)
-        .insert(LevelBoundry)
-        .insert(Collider);
+            .spawn(SpriteBundle {
+                texture: asset_server.load("terrain.png"),
+                transform: Transform::from_xyz(-450.0 + (64.0 * i as f32), BOUNDRY_DISTANCE, 0.)
+                    .with_scale(BOUNDRY_SCALE),
+                ..Default::default()
+            })
+            .insert(Terrain)
+            .insert(LevelBoundry)
+            .insert(Collider);
 
         // Floor
         commands
-        .spawn(SpriteBundle {
-            texture: asset_server.load("terrain.png"),
-            transform: Transform::from_xyz(-450.0 + (64.0 * i as f32), -BOUNDRY_DISTANCE, 0.)
-                .with_scale(BOUNDRY_SCALE),
-            ..Default::default()
-        })
-        .insert(Terrain)
-        .insert(LevelBoundry)
-        .insert(Collider);
+            .spawn(SpriteBundle {
+                texture: asset_server.load("terrain.png"),
+                transform: Transform::from_xyz(-450.0 + (64.0 * i as f32), -BOUNDRY_DISTANCE, 0.)
+                    .with_scale(BOUNDRY_SCALE),
+                ..Default::default()
+            })
+            .insert(Terrain)
+            .insert(LevelBoundry)
+            .insert(Collider);
     }
-
-
 
     // Text with multiple sections
     commands.spawn((
@@ -139,41 +140,50 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 font_size: 32.0,
                 color: Color::GOLD,
             }),
-        ]).with_text_alignment(TextAlignment::Center)
+        ])
+        .with_text_alignment(TextAlignment::Center)
         .with_style(Style {
             position_type: PositionType::Absolute,
-            position: UiRect { right: Val::Px(15.0), bottom: Val::Px(5.0), ..Default::default() },
+            position: UiRect {
+                right: Val::Px(15.0),
+                bottom: Val::Px(5.0),
+                ..Default::default()
+            },
             ..Default::default()
         }),
         FpsText,
     ));
 
-        // Text with multiple sections
-        commands.spawn((
-            // Create a TextBundle that has a Text with a list of sections.
-            TextBundle::from_sections([
-                TextSection::new(
-                    "Score: ",
-                    TextStyle {
-                        font: asset_server.load("Raleway-Bold.ttf"),
-                        font_size: 32.0,
-                        color: Color::WHITE,
-                    },
-                ),
-                TextSection::from_style(TextStyle {
+    // Text with multiple sections
+    commands.spawn((
+        // Create a TextBundle that has a Text with a list of sections.
+        TextBundle::from_sections([
+            TextSection::new(
+                "Score: ",
+                TextStyle {
                     font: asset_server.load("Raleway-Bold.ttf"),
                     font_size: 32.0,
-                    color: Color::GOLD,
-                }),
-            ]).with_text_alignment(TextAlignment::Center)
-            .with_style(Style {
-                position_type: PositionType::Absolute,
-                position: UiRect { top: Val::Px(10.0), left: Val::Px(15.0), ..Default::default() },
-                ..Default::default()
+                    color: Color::WHITE,
+                },
+            ),
+            TextSection::from_style(TextStyle {
+                font: asset_server.load("Raleway-Bold.ttf"),
+                font_size: 32.0,
+                color: Color::GOLD,
             }),
-            ScoreText,
-        ));
-
+        ])
+        .with_text_alignment(TextAlignment::Center)
+        .with_style(Style {
+            position_type: PositionType::Absolute,
+            position: UiRect {
+                top: Val::Px(10.0),
+                left: Val::Px(15.0),
+                ..Default::default()
+            },
+            ..Default::default()
+        }),
+        ScoreText,
+    ));
 }
 
 fn simulated_gravity(time: Res<Time>, mut query: Query<(&mut Player, &mut Transform)>) {
@@ -194,7 +204,10 @@ fn player_movement_system(
     }
 }
 
-fn move_terrain_forward(time: Res<Time>, mut query: Query<(&mut Terrain, &mut Transform), Without<LevelBoundry>>) {
+fn move_terrain_forward(
+    time: Res<Time>,
+    mut query: Query<(&mut Terrain, &mut Transform), Without<LevelBoundry>>,
+) {
     for (_terrain, mut transform) in query.iter_mut() {
         transform.translation.x -= 200. * time.delta_seconds();
     }
@@ -210,22 +223,22 @@ fn recycle_terrain(mut query: Query<(&mut Terrain, &mut Transform), Without<Leve
     }
 }
 
-fn reset_terrain(mut query: Query<(&mut Terrain, &mut Transform), Without<LevelBoundry>>,
-mut game_state: ResMut<GameState>) {
-
+fn reset_terrain(
+    mut query: Query<(&mut Terrain, &mut Transform), Without<LevelBoundry>>,
+    mut game_state: ResMut<GameState>,
+) {
     if game_state.state == RunState::ResetTerrain {
         println!("Resetting terrain");
         let mut i = 0;
-        for (_terrain, mut transform) in query.iter_mut(){
+        for (_terrain, mut transform) in query.iter_mut() {
             let mut rng = thread_rng();
             transform.translation.x = 1000. + (300. * i as f32);
             transform.translation.y = 10. * rng.gen_range(-10.0..10.0);
-            i = i+1;
+            i = i + 1;
         }
 
         game_state.state = RunState::Running;
     }
-
 }
 
 fn check_collisions(
@@ -233,7 +246,7 @@ fn check_collisions(
     mut player_query: Query<(&Player, &mut Transform), Without<Collider>>,
     mut collision_events: EventWriter<CollisionEvent>,
     mut scoreboard: ResMut<Scoreboard>,
-    time: Res<Time>
+    time: Res<Time>,
 ) {
     let (_player, mut player_transform) = player_query.single_mut();
     let mut player_size = player_transform.scale.truncate();
@@ -242,7 +255,6 @@ fn check_collisions(
     player_size.y *= SPRITE_DIMENSION;
 
     for (_terrain, collider_transform) in &terrain_query {
-
         let mut collider_size = collider_transform.scale.truncate();
         collider_size.x *= SPRITE_DIMENSION;
         collider_size.y *= SPRITE_DIMENSION;
@@ -258,16 +270,11 @@ fn check_collisions(
             collision_events.send_default();
 
             match collision {
-                Collision::Left => {
-                }
-                Collision::Right => {
-                }
-                Collision::Top => {
-                }
-                Collision::Bottom => {
-                }
-                Collision::Inside => {
-                }
+                Collision::Left => {}
+                Collision::Right => {}
+                Collision::Top => {}
+                Collision::Bottom => {}
+                Collision::Inside => {}
             }
         }
     }
@@ -284,22 +291,18 @@ fn text_update_system(diagnostics: Res<Diagnostics>, mut query: Query<&mut Text,
     }
 }
 
-fn update_scoreboard(mut scoreboard: ResMut<Scoreboard>, time: Res<Time>){
+fn update_scoreboard(mut scoreboard: ResMut<Scoreboard>, time: Res<Time>) {
     let elapsed_seconds = time.elapsed_seconds() as usize;
     let score = (elapsed_seconds - scoreboard.seconds_since_round_start);
     scoreboard.score = score;
 }
 
-fn render_score(scoreboard: Res<Scoreboard>, mut query: Query<&mut Text, With<ScoreText>>) 
-{
+fn render_score(scoreboard: Res<Scoreboard>, mut query: Query<&mut Text, With<ScoreText>>) {
     let mut score_text = query.single_mut();
     score_text.sections[1].value = scoreboard.score.to_string();
 }
 
-fn draw_debug_box(
-    lines: &mut ResMut<DebugLines>,
-    collider_transform: &Transform,
-) {
+fn draw_debug_box(lines: &mut ResMut<DebugLines>, collider_transform: &Transform) {
     let display_duration = 0.0;
 
     let collider_translation = collider_transform.translation;
@@ -322,8 +325,8 @@ fn draw_debug_box(
             0.0,
         );
         let bottom_right = Vec3::new(
-            collider_translation.x + collider_scale.x +32.0,
-            collider_translation.y - collider_scale.y -32.0,
+            collider_translation.x + collider_scale.x + 32.0,
+            collider_translation.y - collider_scale.y - 32.0,
             0.0,
         );
 
@@ -357,7 +360,6 @@ fn on_player_collision(
     mut game_state: ResMut<GameState>,
     time: Res<Time>,
 ) {
-
     let mut player_transform = player.single_mut();
 
     if !collision_events.is_empty() {
@@ -368,7 +370,6 @@ fn on_player_collision(
 
         game_state.state = RunState::ResetTerrain;
     }
-    
 }
 
 fn main() {
@@ -386,8 +387,13 @@ fn main() {
         }))
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(DebugLinesPlugin::default())
-        .insert_resource(Scoreboard { score: 0, seconds_since_round_start: 0})
-        .insert_resource(GameState {state: RunState::Running })
+        .insert_resource(Scoreboard {
+            score: 0,
+            seconds_since_round_start: 0,
+        })
+        .insert_resource(GameState {
+            state: RunState::Running,
+        })
         .add_startup_system(setup)
         .add_event::<CollisionEvent>()
         .add_systems(
@@ -401,10 +407,8 @@ fn main() {
                 simulated_gravity
                     .before(check_collisions)
                     .after(player_movement_system),
-                on_player_collision
-                    .after(check_collisions),
-                reset_terrain
-                    .after(on_player_collision)
+                on_player_collision.after(check_collisions),
+                reset_terrain.after(on_player_collision),
             )
                 .in_schedule(CoreSchedule::FixedUpdate),
         )
